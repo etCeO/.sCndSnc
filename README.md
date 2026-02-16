@@ -1,7 +1,7 @@
 # Second Sync
 ### Seconds To Time Converter
 
-- A lightweight Python program that calculates the complement and reverse complement of a DNA sequences using standard base-pairing rules. This project demonstrates fundamental bioinformatics logic, string manipulation, and some biological data processing.
+- This Python program converts a user-provided number of seconds into an organized time structure (days, hours, minutes, and seconds). It uses integer division and modulo operations to accurately compute each time unit while preserving remainders, highlighting arithmetic operators, conditional validation, string formatting, and function abstraction.
 
 ## Author Info
 
