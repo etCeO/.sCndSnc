@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Seconds Converter</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                        Roboto, Helvetica, Arial, sans-serif;
+        }
+        .digital-clock {
+            margin-top: 16px;
+            padding: 14px;
+            background: #0f172a;
+            color: #22c55e;
+            font-family: "Courier New", monospace;
+            font-size: 22px;
+            text-align: center;
+            border-radius: 6px;
+            letter-spacing: 2px;
+        }
+
+        /* Floating particle container */
+        #particles {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            z-index: -2; /* behind grid + content */
+            pointer-events: none;
+        }
+
+        /* Individual particles */
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(34,197,94,0.8), rgba(34,197,94,0.2));
+            box-shadow: 0 0 8px rgba(34,197,94,0.6);
+            animation: floatUp linear infinite;
+        }
+
+        /* Floating animation */
+        @keyframes floatUp {
+            from {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            to {
+                transform: translateY(-120vh) translateX(20px);
+                opacity: 0;
+            }
+        }        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                        Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+
+            /* Dark futuristic gradient */
+            background:
+                radial-gradient(circle at top, rgba(34, 197, 94, 0.15), transparent 60%),
+                linear-gradient(135deg, #020617, #0f172a);
+
+            color: #e2e8f0;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(34, 197, 94, 0.06),
+                    rgba(34, 197, 94, 0.06) 1px,
+                    transparent 1px,
+                    transparent 40px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    rgba(34, 197, 94, 0.06),
+                    rgba(34, 197, 94, 0.06) 1px,
+                    transparent 1px,
+                    transparent 40px
+                );
+            pointer-events: none;
+            z-index: -1;
+        }        
+        header {
+            background: #1e293b;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+    
+        main {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #273449; /* lighter than #0f172a */
+            box-shadow:
+                0 0 0 1px rgba(34, 197, 94, 0.25),
+                0 12px 40px rgba(0,0,0,0.6);
+            padding: 30px;
+            border-radius: 12px;
+            color: #e2e8f0;
+        }
+        h2 {
+            margin-top: 0;
+        }
+    
+        label {
+            display: block;
+            margin-top: 18px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+    
+        input,
+        textarea,
+        button {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            margin-bottom: 16px;
+            border-radius: 4px;
+            border: 1px solid #cbd5e1;
+        }
+    
+        textarea {
+            resize: vertical;
+        }
+    
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    
+        button:hover {
+            background: #1d4ed8;
+        }
+    
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    
+        footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .clock-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: #020617;
+            border-radius: 10px;
+            box-shadow: inset 0 0 20px rgba(0, 255, 128, 0.25),
+                        0 8px 20px rgba(0,0,0,0.4);
+            text-align: center;
+        }
+
+        .clock-display {
+            font-family: "Courier New", monospace;
+            font-size: 36px;
+            color: #22c55e;
+            letter-spacing: 6px;
+        }
+
+        .colon {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50%, 100% { opacity: 1; }
+            25%, 75% { opacity: 0.2; }
+        }
+
+        .clock-labels {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            margin-top: 8px;
+            font-size: 12px;
+            color: #86efac;
+            letter-spacing: 2px;
+        }
+        
+        input,
+        textarea {
+            background: #334155;
+            border: 1px solid #475569;
+            color: #e2e8f0;
+        }        
+    </style>
+    </head>
+<body>
+
+<div id="particles"></div>
+
+<header>
+    <h1>Seconds to Time Converter</h1>
+</header>
+
+<main>
+    <h2>Convert Seconds</h2>
+
+    <label for="secondsInput">Enter number of seconds:</label>
+    <input type="number" id="secondsInput" placeholder="e.g. 3661">
+
+    <button onclick="convertSeconds()">Convert</button>
+
+    <div class="result" id="output"></div>
+
+    <div class="clock-container" id="digitalClock" style="display: none;">
+        <div class="clock-display">
+            <span id="dd">00</span><span class="colon">:</span>
+            <span id="hh">00</span><span class="colon">:</span>
+            <span id="mm">00</span><span class="colon">:</span>
+            <span id="ss">00</span>
+        </div>
+        <div class="clock-labels">
+            <span>DD</span>
+            <span>HH</span>
+            <span>MM</span>
+            <span>SS</span>
+        </div>
+    </div>
+
+    <footer>
+        <h2>Send Feedback</h2>
+        <p>Have suggestions or feedback? Send me a message:</p>
+    
+        <form action="https://formspree.io/f/mlgwbllk" method="POST">
+            
+            <label for="name">Your Name</label>
+            <input type="text" name="name" required>
+    
+            <label for="email">Your Email</label>
+            <input type="email" name="_replyto" required>
+    
+            <label for="message">Message</label>
+            <textarea name="message" rows="5" required></textarea>
+    
+            <!-- Optional: Email subject -->
+            <input type="hidden" name="_subject" value="New Feedback from Seconds Converter">
+        
+            <button type="submit">Send Feedback</button>
+        </form>
+    </footer>
+</main>
+
+<script>
+    function pad(num) {
+        return num.toString().padStart(2, '0');
+    }
+
+    function pluralize(value, unit) {
+        return `${value} ${unit}${value === 1 ? '' : 's'}`;
+    }
+
+    function convertSeconds() {
+        const input = document.getElementById("secondsInput").value;
+        const output = document.getElementById("output");
+        const clock = document.getElementById("digitalClock");
+
+        const s = parseInt(input);
+
+        if (isNaN(s) || s < 0) {
+            output.textContent = "Invalid number";
+            clock.style.display = "none";
+            return;
+        }
+
+        const days = Math.floor(s / 86400);
+        const hours = Math.floor((s % 86400) / 3600);
+        const minutes = Math.floor((s % 3600) / 60);
+        const seconds = s % 60;
+
+        output.textContent =
+            `${s} seconds is ` +
+            `${pluralize(days, 'day')}, ` +
+            `${pluralize(hours, 'hour')}, ` +
+            `${pluralize(minutes, 'minute')}, and ` +
+            `${pluralize(seconds, 'second')}.`;
+
+        document.getElementById("dd").textContent = pad(days);
+        document.getElementById("hh").textContent = pad(hours);
+        document.getElementById("mm").textContent = pad(minutes);
+        document.getElementById("ss").textContent = pad(seconds);
+
+        clock.style.display = "block";
+    }
+
+    function createParticles() {
+        const container = document.getElementById("particles");
+        const particleCount = 60; // adjust for more/less particles
+
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement("div");
+            particle.classList.add("particle");
+
+            const size = Math.random() * 6 + 2; // 2px - 8px
+            particle.style.width = size + "px";
+            particle.style.height = size + "px";
+
+            particle.style.left = Math.random() * 100 + "vw";
+            particle.style.top = Math.random() * 100 + "vh";
+
+            const duration = Math.random() * 15 + 10; // 10s - 25s
+            particle.style.animationDuration = duration + "s";
+
+            particle.style.animationDelay = Math.random() * 10 + "s";
+
+            container.appendChild(particle);
+        }
+    }
+
+    createParticles();  
+    
+    const form = document.querySelector("form");
+
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const data = new FormData(form);
+
+        const response = await fetch(form.action, {
+            method: "POST",
+            body: data,
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            alert("Thanks for your feedback!");
+            form.reset();
+        } else {
+            alert("Oops! Something went wrong.");
+        }
+    });
+
+</script>
+</body>
+</html>
