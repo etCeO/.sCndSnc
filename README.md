@@ -1,7 +1,7 @@
 # Second Sync
 ### Seconds To Time Converter
 
-- This Python program converts a user-provided number of seconds into an organized time structure (days, hours, minutes, and seconds). It uses integer division and modulo operations to accurately compute each time unit while preserving remainders, highlighting arithmetic operators, conditional validation, string formatting, and function abstraction.
+- This Python program converts a user-provided number of seconds into an organized time structure (hours, minutes, and seconds). It uses integer division and modulo operations to accurately compute each time unit while preserving remainders, highlighting arithmetic operators, conditional validation, string formatting, and function abstraction.
 
 ## Author Info
 
