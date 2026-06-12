@@ -1,350 +1,1002 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Seconds Converter</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-                        Roboto, Helvetica, Arial, sans-serif;
-        }
-        .digital-clock {
-            margin-top: 16px;
-            padding: 14px;
-            background: #0f172a;
-            color: #22c55e;
-            font-family: "Courier New", monospace;
-            font-size: 22px;
-            text-align: center;
-            border-radius: 6px;
-            letter-spacing: 2px;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SecondSync — Temporal Analytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-void:     #03070f;
+      --bg-deep:     #060d1a;
+      --bg-panel:    rgba(8, 16, 32, 0.85);
+      --bg-card:     rgba(12, 24, 48, 0.7);
+      --border:      rgba(0, 200, 255, 0.15);
+      --border-hot:  rgba(0, 200, 255, 0.5);
+      --accent-cyan: #00c8ff;
+      --accent-blue: #0080ff;
+      --accent-teal: #00ffc8;
+      --accent-amber:#ffb300;
+      --text-primary:#e8f4ff;
+      --text-dim:    #5a7fa0;
+      --text-label:  #3a6080;
+      --font-mono:   'Share Tech Mono', monospace;
+      --font-display:'Rajdhani', sans-serif;
+      --font-body:   'Inter', sans-serif;
+      --glow-sm: 0 0 12px rgba(0, 200, 255, 0.3);
+      --glow-md: 0 0 24px rgba(0, 200, 255, 0.4), 0 0 48px rgba(0, 200, 255, 0.1);
+    }
 
-        /* Floating particle container */
-        #particles {
-            position: fixed;
-            inset: 0;
-            overflow: hidden;
-            z-index: -2; /* behind grid + content */
-            pointer-events: none;
-        }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* Individual particles */
-        .particle {
-            position: absolute;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(34,197,94,0.8), rgba(34,197,94,0.2));
-            box-shadow: 0 0 8px rgba(34,197,94,0.6);
-            animation: floatUp linear infinite;
-        }
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg-void);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-        /* Floating animation */
-        @keyframes floatUp {
-            from {
-                transform: translateY(0) translateX(0);
-                opacity: 0;
-            }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            to {
-                transform: translateY(-120vh) translateX(20px);
-                opacity: 0;
-            }
-        }        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-                        Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
+    /* ─── BACKGROUND ─────────────────────────────────────── */
+    #bg-canvas {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,128,255,0.12), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0,200,255,0.06), transparent),
+        linear-gradient(180deg, #03070f 0%, #060d1a 100%);
+    }
+    #bg-canvas::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        repeating-linear-gradient(0deg,   rgba(0,200,255,0.03) 0, rgba(0,200,255,0.03) 1px, transparent 1px, transparent 60px),
+        repeating-linear-gradient(90deg,  rgba(0,200,255,0.03) 0, rgba(0,200,255,0.03) 1px, transparent 1px, transparent 60px);
+      pointer-events: none;
+    }
 
-            /* Dark futuristic gradient */
-            background:
-                radial-gradient(circle at top, rgba(34, 197, 94, 0.15), transparent 60%),
-                linear-gradient(135deg, #020617, #0f172a);
+    /* ─── PARTICLES ──────────────────────────────────────── */
+    #particles { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+    .p { position: absolute; border-radius: 50%; animation: pfloat linear infinite; opacity: 0; }
+    @keyframes pfloat {
+      0%   { transform: translateY(100vh) scale(0.5); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 0.6; }
+      100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+    }
 
-            color: #e2e8f0;
-        }
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background:
-                repeating-linear-gradient(
-                    0deg,
-                    rgba(34, 197, 94, 0.06),
-                    rgba(34, 197, 94, 0.06) 1px,
-                    transparent 1px,
-                    transparent 40px
-                ),
-                repeating-linear-gradient(
-                    90deg,
-                    rgba(34, 197, 94, 0.06),
-                    rgba(34, 197, 94, 0.06) 1px,
-                    transparent 1px,
-                    transparent 40px
-                );
-            pointer-events: none;
-            z-index: -1;
-        }        
-        header {
-            background: #1e293b;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-    
-        main {
-            max-width: 600px;
-            margin: 40px auto;
-            background: #273449; /* lighter than #0f172a */
-            box-shadow:
-                0 0 0 1px rgba(34, 197, 94, 0.25),
-                0 12px 40px rgba(0,0,0,0.6);
-            padding: 30px;
-            border-radius: 12px;
-            color: #e2e8f0;
-        }
-        h2 {
-            margin-top: 0;
-        }
-    
-        label {
-            display: block;
-            margin-top: 18px;
-            margin-bottom: 6px;
-            font-weight: 600;
-        }
-    
-        input,
-        textarea,
-        button {
-            width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            margin-bottom: 16px;
-            border-radius: 4px;
-            border: 1px solid #cbd5e1;
-        }
-    
-        textarea {
-            resize: vertical;
-        }
-    
-        button {
-            background: #2563eb;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-    
-        button:hover {
-            background: #1d4ed8;
-        }
-    
-        .result {
-            margin-top: 20px;
-            font-weight: bold;
-        }
-    
-        footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #e5e7eb;
-        }
+    /* ─── LAYOUT ─────────────────────────────────────────── */
+    .page {
+      position: relative; z-index: 2;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px 80px;
+    }
 
-        .clock-container {
-            margin-top: 20px;
-            padding: 20px;
-            background: #020617;
-            border-radius: 10px;
-            box-shadow: inset 0 0 20px rgba(0, 255, 128, 0.25),
-                        0 8px 20px rgba(0,0,0,0.4);
-            text-align: center;
-        }
+    /* ─── HEADER ─────────────────────────────────────────── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 0 20px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap; gap: 12px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-icon {
+      width: 40px; height: 40px;
+      border: 1.5px solid var(--accent-cyan);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: var(--glow-sm);
+      font-size: 20px;
+    }
+    .brand-name {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-primary);
+    }
+    .brand-sub {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--accent-cyan);
+      letter-spacing: 2px;
+      margin-top: 2px;
+    }
+    .sys-status {
+      display: flex; gap: 20px; align-items: center;
+    }
+    .status-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent-teal);
+      box-shadow: 0 0 8px var(--accent-teal);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .status-text {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+    #live-time {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--accent-cyan);
+    }
 
-        .clock-display {
-            font-family: "Courier New", monospace;
-            font-size: 36px;
-            color: #22c55e;
-            letter-spacing: 6px;
-        }
+    /* ─── SECTION TITLES ─────────────────────────────────── */
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--text-label);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+    }
 
-        .colon {
-            animation: blink 1s infinite;
-        }
+    /* ─── INPUT ZONE ─────────────────────────────────────── */
+    .input-zone {
+      margin: 40px 0 32px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: border-color 0.3s;
+    }
+    .input-zone:focus-within {
+      border-color: var(--border-hot);
+      box-shadow: var(--glow-sm);
+    }
+    .input-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
+    }
+    .input-header-icon {
+      font-size: 18px; color: var(--accent-cyan);
+    }
+    .input-row {
+      display: flex; gap: 12px; align-items: stretch; flex-wrap: wrap;
+    }
+    .input-wrapper {
+      flex: 1; min-width: 200px; position: relative;
+    }
+    .input-wrapper input {
+      width: 100%;
+      background: rgba(0,10,24,0.8);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 28px;
+      letter-spacing: 2px;
+      padding: 18px 20px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -moz-appearance: textfield;
+    }
+    .input-wrapper input::-webkit-outer-spin-button,
+    .input-wrapper input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .input-wrapper input:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: var(--glow-sm);
+    }
+    .input-unit {
+      position: absolute; right: 16px; top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      pointer-events: none;
+    }
+    .convert-btn {
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 18px 32px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+      white-space: nowrap;
+      box-shadow: 0 0 20px rgba(0,128,255,0.3);
+    }
+    .convert-btn:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 0 30px rgba(0,200,255,0.4);
+    }
+    .convert-btn:active { transform: translateY(0); }
 
-        @keyframes blink {
-            0%, 50%, 100% { opacity: 1; }
-            25%, 75% { opacity: 0.2; }
-        }
+    /* Presets */
+    .presets {
+      margin-top: 16px;
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .preset-chip {
+      background: rgba(0,200,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 1px;
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .preset-chip:hover {
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      background: rgba(0,200,255,0.1);
+    }
 
-        .clock-labels {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            margin-top: 8px;
-            font-size: 12px;
-            color: #86efac;
-            letter-spacing: 2px;
-        }
-        
-        input,
-        textarea {
-            background: #334155;
-            border: 1px solid #475569;
-            color: #e2e8f0;
-        }        
-    </style>
-    </head>
+    /* ─── DIGITAL CLOCK ──────────────────────────────────── */
+    .clock-zone {
+      background: rgba(0, 4, 12, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 28px;
+      margin-bottom: 28px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      display: none;
+    }
+    .clock-zone.visible { display: block; }
+    .clock-zone::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%; transform: translateX(-50%);
+      width: 60%; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+    }
+    .clock-label-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .clock-label-row span {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-label);
+      letter-spacing: 3px;
+    }
+    .clock-digits {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .digit-block {
+      background: rgba(0,200,255,0.04);
+      border: 1px solid rgba(0,200,255,0.1);
+      border-radius: 10px;
+      padding: 16px 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .digit-block .digit {
+      font-family: var(--font-mono);
+      font-size: clamp(28px, 6vw, 56px);
+      color: var(--accent-cyan);
+      text-shadow: 0 0 20px rgba(0,200,255,0.6), 0 0 40px rgba(0,200,255,0.2);
+      letter-spacing: 4px;
+      transition: transform 0.15s;
+    }
+    .digit-block .digit.bump {
+      animation: digitbump 0.2s ease;
+    }
+    @keyframes digitbump {
+      0%  { transform: translateY(-4px); opacity: 0.5; }
+      100%{ transform: translateY(0);    opacity: 1; }
+    }
+    .clock-colon {
+      font-family: var(--font-mono);
+      font-size: clamp(24px, 5vw, 48px);
+      color: rgba(0,200,255,0.4);
+      display: flex; align-items: center; justify-content: center;
+      animation: colonblink 2s ease-in-out infinite;
+      padding: 16px 0;
+    }
+    @keyframes colonblink {
+      0%,100%{ opacity:1 } 50%{ opacity:0.15 }
+    }
+    .clock-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+      gap: 4px;
+      align-items: center;
+    }
+    .clock-labels-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+      gap: 4px;
+      margin-top: 10px;
+    }
+    .clock-labels-row span {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-label);
+      letter-spacing: 3px;
+      text-align: center;
+    }
+    .clock-labels-row .spacer { visibility: hidden; }
+
+    /* ─── METRICS GRID ───────────────────────────────────── */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 700px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 380px) { .metrics-grid { grid-template-columns: 1fr; } }
+
+    .metric-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 16px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: border-color 0.25s, transform 0.2s;
+      display: none;
+    }
+    .metric-card.visible { display: block; }
+    .metric-card:hover {
+      border-color: rgba(0,200,255,0.3);
+      transform: translateY(-2px);
+    }
+    .metric-icon { font-size: 20px; margin-bottom: 10px; }
+    .metric-value {
+      font-family: var(--font-mono);
+      font-size: clamp(18px, 3vw, 26px);
+      color: var(--accent-cyan);
+      text-shadow: 0 0 12px rgba(0,200,255,0.4);
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+    .metric-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    /* ─── LOWER GRID ─────────────────────────────────────── */
+    .lower-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 700px) { .lower-grid { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: none;
+    }
+    .panel.visible { display: block; }
+
+    /* Context panel */
+    .context-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .context-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 14px;
+      background: rgba(0,200,255,0.04);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .context-emoji { font-size: 18px; flex-shrink: 0; }
+    .context-text { font-size: 13px; color: var(--text-primary); line-height: 1.4; }
+    .context-text strong { color: var(--accent-cyan); font-family: var(--font-mono); }
+
+    /* Progress rings */
+    .rings-area {
+      display: flex; gap: 20px; justify-content: space-around; align-items: center; flex-wrap: wrap;
+    }
+    .ring-item { text-align: center; }
+    .ring-svg { overflow: visible; }
+    .ring-track { stroke: rgba(0,200,255,0.08); fill: none; }
+    .ring-fill { fill: none; stroke-linecap: round; transition: stroke-dashoffset 0.8s cubic-bezier(0.4,0,0.2,1); }
+    .ring-label {
+      font-family: var(--font-mono); font-size: 10px;
+      color: var(--text-dim); letter-spacing: 2px; margin-top: 8px;
+    }
+    .ring-val {
+      font-family: var(--font-mono); font-size: 16px;
+      color: var(--accent-cyan); text-shadow: 0 0 10px rgba(0,200,255,0.5);
+    }
+
+    /* ─── MATH BREAKDOWN ─────────────────────────────────── */
+    .math-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 28px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: none;
+    }
+    .math-panel.visible { display: block; }
+    .math-steps { display: flex; flex-direction: column; gap: 10px; }
+    .math-step {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 16px;
+      background: rgba(0,0,0,0.3);
+      border-left: 3px solid var(--accent-blue);
+      border-radius: 0 8px 8px 0;
+    }
+    .math-step:nth-child(2) { border-left-color: var(--accent-cyan); }
+    .math-step:nth-child(3) { border-left-color: var(--accent-teal); }
+    .math-step:nth-child(4) { border-left-color: var(--accent-amber); }
+    .math-formula {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+    .math-result {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      color: var(--accent-cyan);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    /* ─── FEEDBACK FORM ──────────────────────────────────── */
+    .feedback-zone {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      margin-top: 40px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .form-row { margin-bottom: 14px; }
+    .form-row label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--text-label);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .form-row input,
+    .form-row textarea {
+      width: 100%;
+      background: rgba(0,10,24,0.8);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 14px;
+      padding: 12px 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      resize: vertical;
+    }
+    .form-row input:focus,
+    .form-row textarea:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: var(--glow-sm);
+    }
+    .submit-btn {
+      background: transparent;
+      border: 1px solid var(--accent-cyan);
+      border-radius: 8px;
+      color: var(--accent-cyan);
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 12px 28px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .submit-btn:hover {
+      background: rgba(0,200,255,0.1);
+      box-shadow: var(--glow-sm);
+    }
+
+    /* ─── ERROR ──────────────────────────────────────────── */
+    .error-msg {
+      display: none;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: #ff4466;
+      margin-top: 10px;
+      padding: 10px 14px;
+      background: rgba(255,68,102,0.08);
+      border: 1px solid rgba(255,68,102,0.3);
+      border-radius: 8px;
+      letter-spacing: 1px;
+    }
+    .error-msg.visible { display: block; }
+
+    /* ─── IDLE PROMPT ────────────────────────────────────── */
+    .idle-prompt {
+      text-align: center;
+      padding: 48px 24px;
+      display: block;
+    }
+    .idle-prompt.hidden { display: none; }
+    .idle-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.4; }
+    .idle-text { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); letter-spacing: 2px; }
+
+    /* ─── MISC ───────────────────────────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
 <body>
 
+<div id="bg-canvas"></div>
 <div id="particles"></div>
 
-<header>
-    <h1>Second Sync</h1>
-    <h3>Seconds to Time Converter</h3>
-</header>
+<div class="page">
 
-<main>
-    <h2>Convert Seconds</h2>
+  <!-- ─── HEADER ─────────────────────────────────────── -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">⧗</div>
+      <div>
+        <div class="brand-name">SecondSync</div>
+        <div class="brand-sub">Temporal Analytics Platform · v2.0</div>
+      </div>
+    </div>
+    <div class="sys-status">
+      <div class="status-dot"></div>
+      <span class="status-text">SYSTEMS NOMINAL</span>
+      <span id="live-time"></span>
+    </div>
+  </header>
 
-    <label for="secondsInput">Enter number of seconds:</label>
-    <input type="number" id="secondsInput" placeholder="e.g. 3661">
+  <!-- ─── INPUT ZONE ──────────────────────────────────── -->
+  <div class="input-zone">
+    <div class="input-header">
+      <span class="input-header-icon">⌬</span>
+      <div>
+        <div class="section-label">Input Channel</div>
+        <div class="section-title" style="margin-bottom:0">Enter Seconds to Analyze</div>
+      </div>
+    </div>
+    <div class="input-row">
+      <div class="input-wrapper">
+        <input type="number" id="secondsInput" placeholder="0" min="0" autofocus autocomplete="off">
+        <span class="input-unit">SEC</span>
+      </div>
+      <button class="convert-btn" onclick="convertSeconds()">Analyze</button>
+    </div>
+    <div class="error-msg" id="errorMsg">⚠ Invalid input — enter a non-negative integer.</div>
+    <div class="presets">
+      <span class="section-label" style="align-self:center;margin-bottom:0">QUICK LOAD:</span>
+      <button class="preset-chip" onclick="loadPreset(60)">1 Min</button>
+      <button class="preset-chip" onclick="loadPreset(3600)">1 Hour</button>
+      <button class="preset-chip" onclick="loadPreset(86400)">1 Day</button>
+      <button class="preset-chip" onclick="loadPreset(604800)">1 Week</button>
+      <button class="preset-chip" onclick="loadPreset(2592000)">30 Days</button>
+      <button class="preset-chip" onclick="loadPreset(31536000)">1 Year</button>
+    </div>
+  </div>
 
-    <button onclick="convertSeconds()">Convert</button>
+  <!-- ─── IDLE STATE ──────────────────────────────────── -->
+  <div class="idle-prompt" id="idlePrompt">
+    <div class="idle-icon">◎</div>
+    <div class="idle-text">Awaiting temporal input — enter a value above to begin analysis</div>
+  </div>
 
-    <div class="result" id="output"></div>
+  <!-- ─── DIGITAL CLOCK ───────────────────────────────── -->
+  <div class="clock-zone" id="clockZone">
+    <div class="section-label" style="margin-bottom:16px">Temporal Decomposition</div>
+    <div class="clock-grid">
+      <div class="digit-block"><span class="digit" id="ddd">00</span></div>
+      <div class="clock-colon">:</div>
+      <div class="digit-block"><span class="digit" id="hhh">00</span></div>
+      <div class="clock-colon">:</div>
+      <div class="digit-block"><span class="digit" id="mmm">00</span></div>
+      <div class="clock-colon">:</div>
+      <div class="digit-block"><span class="digit" id="sss">00</span></div>
+    </div>
+    <div class="clock-labels-row">
+      <span>DAYS</span>
+      <span class="spacer">·</span>
+      <span>HOURS</span>
+      <span class="spacer">·</span>
+      <span>MINUTES</span>
+      <span class="spacer">·</span>
+      <span>SECONDS</span>
+    </div>
+  </div>
 
-    <div class="clock-container" id="digitalClock" style="display: none;">
-        <div class="clock-display">
-            <span id="dd">00</span><span class="colon">:</span>
-            <span id="hh">00</span><span class="colon">:</span>
-            <span id="mm">00</span><span class="colon">:</span>
-            <span id="ss">00</span>
-        </div>
-        <div class="clock-labels">
-            <span>DD</span>
-            <span>HH</span>
-            <span>MM</span>
-            <span>SS</span>
-        </div>
+  <!-- ─── METRIC CARDS ────────────────────────────────── -->
+  <div class="metrics-grid">
+    <div class="metric-card" id="mc0">
+      <div class="metric-icon">⏱</div>
+      <div class="metric-value" id="mTotal">—</div>
+      <div class="metric-label">Total Seconds</div>
+    </div>
+    <div class="metric-card" id="mc1">
+      <div class="metric-icon">⟳</div>
+      <div class="metric-value" id="mMinutes">—</div>
+      <div class="metric-label">Total Minutes</div>
+    </div>
+    <div class="metric-card" id="mc2">
+      <div class="metric-icon">◷</div>
+      <div class="metric-value" id="mHours">—</div>
+      <div class="metric-label">Total Hours</div>
+    </div>
+    <div class="metric-card" id="mc3">
+      <div class="metric-icon">☀</div>
+      <div class="metric-value" id="mDays">—</div>
+      <div class="metric-label">Total Days</div>
+    </div>
+    <div class="metric-card" id="mc4">
+      <div class="metric-icon">📅</div>
+      <div class="metric-value" id="mWeeks">—</div>
+      <div class="metric-label">Total Weeks</div>
+    </div>
+    <div class="metric-card" id="mc5">
+      <div class="metric-icon">🗓</div>
+      <div class="metric-value" id="mMonths">—</div>
+      <div class="metric-label">Approx. Months</div>
+    </div>
+    <div class="metric-card" id="mc6">
+      <div class="metric-icon">📆</div>
+      <div class="metric-value" id="mYears">—</div>
+      <div class="metric-label">Approx. Years</div>
+    </div>
+    <div class="metric-card" id="mc7">
+      <div class="metric-icon">💤</div>
+      <div class="metric-value" id="mSleep">—</div>
+      <div class="metric-label">Sleep Cycles</div>
+    </div>
+  </div>
+
+  <!-- ─── LOWER GRID ──────────────────────────────────── -->
+  <div class="lower-grid">
+    <!-- Context panel -->
+    <div class="panel" id="contextPanel">
+      <div class="section-label">Time Context Engine</div>
+      <div class="section-title">Human-Scale Equivalencies</div>
+      <ul class="context-list" id="contextList"></ul>
     </div>
 
-    <footer>
-        <h2>Send Feedback</h2>
-        <p>Have suggestions or feedback? Send me a message:</p>
-    
-        <form action="https://formspree.io/f/mlgwbllk" method="POST">
-            
-            <label for="name">Your Name</label>
-            <input type="text" name="name" required>
-    
-            <label for="email">Your Email</label>
-            <input type="email" name="_replyto" required>
-    
-            <label for="message">Message</label>
-            <textarea name="message" rows="5" required></textarea>
-    
-            <!-- Optional: Email subject -->
-            <input type="hidden" name="_subject" value="New Feedback from Seconds Converter">
-        
-            <button type="submit">Send Feedback</button>
-        </form>
-    </footer>
-</main>
+    <!-- Ring visualization -->
+    <div class="panel" id="ringsPanel">
+      <div class="section-label">Temporal Distribution</div>
+      <div class="section-title">Time Allocation</div>
+      <div class="rings-area" id="ringsArea"></div>
+    </div>
+  </div>
+
+  <!-- ─── MATH BREAKDOWN ───────────────────────────────── -->
+  <div class="math-panel" id="mathPanel">
+    <div class="section-label">Computation Log</div>
+    <div class="section-title">Integer Division &amp; Modulo Operations</div>
+    <div class="math-steps" id="mathSteps"></div>
+  </div>
+
+  <!-- ─── FEEDBACK ─────────────────────────────────────── -->
+  <div class="feedback-zone">
+    <div class="section-label">Transmission</div>
+    <div class="section-title">Send Feedback</div>
+    <form id="feedbackForm" action="https://formspree.io/f/mlgwbllk" method="POST">
+      <div class="form-row">
+        <label for="fname">Your Name</label>
+        <input type="text" id="fname" name="name" required>
+      </div>
+      <div class="form-row">
+        <label for="femail">Your Email</label>
+        <input type="email" id="femail" name="_replyto" required>
+      </div>
+      <div class="form-row">
+        <label for="fmsg">Message</label>
+        <textarea id="fmsg" name="message" rows="4" required></textarea>
+      </div>
+      <input type="hidden" name="_subject" value="SecondSync Feedback">
+      <button type="submit" class="submit-btn">Transmit Feedback</button>
+    </form>
+  </div>
+
+</div><!-- /page -->
 
 <script>
-    function pad(num) {
-        return num.toString().padStart(2, '0');
-    }
+/* ───────────────────────────────────────────────────────
+   UTILITIES
+   ─────────────────────────────────────────────────────── */
+function pad(n, w=2) { return n.toString().padStart(w,'0'); }
+function fmt(n, dec=2) {
+  if (n >= 1e9) return (n/1e9).toFixed(dec)+'B';
+  if (n >= 1e6) return (n/1e6).toFixed(dec)+'M';
+  if (n >= 1e3) return (n/1e3).toFixed(dec)+'K';
+  return n.toFixed(dec).replace(/\.00$/,'');
+}
+function fmtInt(n) { return n.toLocaleString(); }
 
-    function pluralize(value, unit) {
-        return `${value} ${unit}${value === 1 ? '' : 's'}`;
-    }
+/* ───────────────────────────────────────────────────────
+   LIVE CLOCK
+   ─────────────────────────────────────────────────────── */
+function updateLiveClock() {
+  const now = new Date();
+  document.getElementById('live-time').textContent =
+    pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
+}
+setInterval(updateLiveClock, 1000);
+updateLiveClock();
 
-    function convertSeconds() {
-        const input = document.getElementById("secondsInput").value;
-        const output = document.getElementById("output");
-        const clock = document.getElementById("digitalClock");
+/* ───────────────────────────────────────────────────────
+   PARTICLES
+   ─────────────────────────────────────────────────────── */
+(function initParticles() {
+  const c = document.getElementById('particles');
+  for (let i = 0; i < 50; i++) {
+    const p = document.createElement('div');
+    p.className = 'p';
+    const sz = Math.random()*4+1;
+    const hue = Math.random() > 0.6 ? '180' : '200';
+    p.style.cssText = `
+      width:${sz}px; height:${sz}px;
+      left:${Math.random()*100}vw;
+      background:rgba(0,${180+Math.floor(Math.random()*75)},255,0.7);
+      box-shadow:0 0 6px rgba(0,200,255,0.5);
+      animation-duration:${12+Math.random()*18}s;
+      animation-delay:${Math.random()*15}s;
+    `;
+    c.appendChild(p);
+  }
+})();
 
-        const s = parseInt(input);
+/* ───────────────────────────────────────────────────────
+   CONVERSION CORE
+   ─────────────────────────────────────────────────────── */
+function convertSeconds() {
+  const raw = document.getElementById('secondsInput').value.trim();
+  const errEl = document.getElementById('errorMsg');
 
-        if (isNaN(s) || s < 0) {
-            output.textContent = "Invalid number";
-            clock.style.display = "none";
-            return;
-        }
+  const s = Math.floor(Number(raw));
+  if (raw === '' || isNaN(s) || s < 0 || !Number.isFinite(s)) {
+    errEl.classList.add('visible');
+    hideResults();
+    return;
+  }
+  errEl.classList.remove('visible');
+  renderResults(s);
+}
 
-        const days = Math.floor(s / 86400);
-        const hours = Math.floor((s % 86400) / 3600);
-        const minutes = Math.floor((s % 3600) / 60);
-        const seconds = s % 60;
+function loadPreset(val) {
+  document.getElementById('secondsInput').value = val;
+  convertSeconds();
+}
 
-        output.textContent =
-            `${s} seconds is ` +
-            `${pluralize(days, 'day')}, ` +
-            `${pluralize(hours, 'hour')}, ` +
-            `${pluralize(minutes, 'minute')}, and ` +
-            `${pluralize(seconds, 'second')}.`;
+function hideResults() {
+  document.getElementById('idlePrompt').classList.remove('hidden');
+  document.getElementById('clockZone').classList.remove('visible');
+  document.querySelectorAll('.metric-card').forEach(el=>el.classList.remove('visible'));
+  document.getElementById('contextPanel').classList.remove('visible');
+  document.getElementById('ringsPanel').classList.remove('visible');
+  document.getElementById('mathPanel').classList.remove('visible');
+}
 
-        document.getElementById("dd").textContent = pad(days);
-        document.getElementById("hh").textContent = pad(hours);
-        document.getElementById("mm").textContent = pad(minutes);
-        document.getElementById("ss").textContent = pad(seconds);
+function renderResults(s) {
+  document.getElementById('idlePrompt').classList.add('hidden');
 
-        clock.style.display = "block";
-    }
+  /* Core decomposition */
+  const days    = Math.floor(s / 86400);
+  const hours   = Math.floor((s % 86400) / 3600);
+  const minutes = Math.floor((s % 3600) / 60);
+  const seconds = s % 60;
 
-    function createParticles() {
-        const container = document.getElementById("particles");
-        const particleCount = 60; // adjust for more/less particles
+  /* Derived totals */
+  const totalMins   = s / 60;
+  const totalHours  = s / 3600;
+  const totalDays   = s / 86400;
+  const totalWeeks  = totalDays / 7;
+  const totalMonths = totalDays / 30.44;
+  const totalYears  = totalDays / 365.25;
+  const sleepCycles = totalHours / 8;   // avg 8-hr sleep
 
-        for (let i = 0; i < particleCount; i++) {
-            const particle = document.createElement("div");
-            particle.classList.add("particle");
+  /* ── Clock ── */
+  setDigit('ddd', pad(days > 99 ? 99 : days));
+  setDigit('hhh', pad(hours));
+  setDigit('mmm', pad(minutes));
+  setDigit('sss', pad(seconds));
+  document.getElementById('clockZone').classList.add('visible');
 
-            const size = Math.random() * 6 + 2; // 2px - 8px
-            particle.style.width = size + "px";
-            particle.style.height = size + "px";
+  /* ── Metric cards ── */
+  const metrics = [
+    ['mTotal',   fmtInt(s)],
+    ['mMinutes', fmt(totalMins,2)],
+    ['mHours',   fmt(totalHours,2)],
+    ['mDays',    fmt(totalDays,2)],
+    ['mWeeks',   fmt(totalWeeks,2)],
+    ['mMonths',  fmt(totalMonths,2)],
+    ['mYears',   fmt(totalYears,4)],
+    ['mSleep',   fmt(sleepCycles,1)],
+  ];
+  metrics.forEach(([id,val],i)=>{
+    document.getElementById(id).textContent = val;
+    document.getElementById('mc'+i).classList.add('visible');
+  });
 
-            particle.style.left = Math.random() * 100 + "vw";
-            particle.style.top = Math.random() * 100 + "vh";
+  /* ── Context ── */
+  const ctx = buildContext(s, totalDays, totalHours, sleepCycles, totalWeeks);
+  const ctxList = document.getElementById('contextList');
+  ctxList.innerHTML = ctx.map(c=>`
+    <li class="context-item">
+      <span class="context-emoji">${c.icon}</span>
+      <span class="context-text">${c.text}</span>
+    </li>`).join('');
+  document.getElementById('contextPanel').classList.add('visible');
 
-            const duration = Math.random() * 15 + 10; // 10s - 25s
-            particle.style.animationDuration = duration + "s";
+  /* ── Rings ── */
+  renderRings(hours, minutes, seconds);
+  document.getElementById('ringsPanel').classList.add('visible');
 
-            particle.style.animationDelay = Math.random() * 10 + "s";
+  /* ── Math ── */
+  renderMath(s, days, hours, minutes, seconds);
+  document.getElementById('mathPanel').classList.add('visible');
+}
 
-            container.appendChild(particle);
-        }
-    }
+/* ── Set digit with bump animation ── */
+function setDigit(id, val) {
+  const el = document.getElementById(id);
+  if (el.textContent !== val) {
+    el.classList.remove('bump');
+    void el.offsetWidth;
+    el.classList.add('bump');
+    el.textContent = val;
+  }
+}
 
-    createParticles();  
-    
-    const form = document.querySelector("form");
+/* ── Context engine ── */
+function buildContext(s, days, hours, sleep, weeks) {
+  const items = [];
+  if (s < 60)       items.push({icon:'⚡',text:`<strong>${s}</strong> seconds — less than a minute. A heartbeat lasts ~0.8 s.`});
+  else if (s < 3600)items.push({icon:'☕',text:`About <strong>${(s/60).toFixed(1)} minutes</strong> — enough for a coffee break.`});
+  else if (s < 86400)items.push({icon:'🎬',text:`Approximately <strong>${hours.toFixed(1)} hours</strong> — close to a full movie runtime.`});
+  else               items.push({icon:'📅',text:`Roughly <strong>${days.toFixed(1)} days</strong> of elapsed time.`});
 
-    form.addEventListener("submit", async function (e) {
-        e.preventDefault();
+  if (sleep >= 1) items.push({icon:'💤',text:`Equivalent to <strong>${sleep.toFixed(1)}</strong> average sleep cycles (8 hr each).`});
+  if (weeks >= 1) items.push({icon:'🗓',text:`Spans <strong>${weeks.toFixed(1)}</strong> calendar weeks.`});
 
-        const data = new FormData(form);
+  const wdays = Math.floor(days * 5/7);
+  if (wdays >= 1) items.push({icon:'💼',text:`Contains ~<strong>${wdays.toLocaleString()}</strong> standard 8-hour workdays.`});
 
-        const response = await fetch(form.action, {
-            method: "POST",
-            body: data,
-            headers: {
-                'Accept': 'application/json'
-            }
-        });
+  if (s >= 86400) {
+    const schoolYrs = (days / 180).toFixed(2);
+    items.push({icon:'🎓',text:`Corresponds to roughly <strong>${schoolYrs}</strong> school years (180-day calendar).`});
+  }
+  return items.slice(0,4);
+}
 
-        if (response.ok) {
-            alert("Thanks for your feedback!");
-            form.reset();
-        } else {
-            alert("Oops! Something went wrong.");
-        }
+/* ── Ring charts ── */
+function renderRings(h, m, s) {
+  const rings = [
+    { label:'HOURS',   val:h, max:24,  color:'#00c8ff' },
+    { label:'MINUTES', val:m, max:60,  color:'#00ffc8' },
+    { label:'SECONDS', val:s, max:60,  color:'#ffb300' },
+  ];
+  const R = 44, CX = 54, CY = 54, SW = 7;
+  const circ = 2*Math.PI*R;
+  document.getElementById('ringsArea').innerHTML = rings.map(r=>{
+    const pct = r.max ? Math.min(r.val/r.max,1) : 0;
+    const dash = circ;
+    const offset = circ*(1-pct);
+    return `<div class="ring-item">
+      <svg class="ring-svg" width="108" height="108" viewBox="0 0 108 108">
+        <circle class="ring-track" cx="${CX}" cy="${CY}" r="${R}" stroke-width="${SW}"/>
+        <circle class="ring-fill" cx="${CX}" cy="${CY}" r="${R}"
+          stroke="${r.color}" stroke-width="${SW}"
+          stroke-dasharray="${dash}" stroke-dashoffset="${dash}"
+          data-target="${offset}"
+          transform="rotate(-90 ${CX} ${CY})"/>
+        <text x="${CX}" y="${CY}" text-anchor="middle" dominant-baseline="central"
+          font-family="'Share Tech Mono',monospace" font-size="18"
+          fill="${r.color}" style="text-shadow:0 0 8px ${r.color}">
+          ${pad(r.val)}
+        </text>
+      </svg>
+      <div class="ring-label">${r.label}</div>
+    </div>`;
+  }).join('');
+
+  /* Animate rings after DOM paint */
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      document.querySelectorAll('.ring-fill').forEach(el=>{
+        el.style.transition = 'stroke-dashoffset 0.9s cubic-bezier(0.4,0,0.2,1)';
+        el.style.strokeDashoffset = el.dataset.target;
+      });
     });
+  });
+}
 
+/* ── Math breakdown ── */
+function renderMath(s, d, h, m, sec) {
+  const steps = [
+    {
+      formula: `DAYS = ⌊ ${fmtInt(s)} ÷ 86400 ⌋`,
+      result:  `${fmtInt(d)} day${d!==1?'s':''}`,
+    },
+    {
+      formula: `HOURS = ⌊ (${fmtInt(s)} mod 86400) ÷ 3600 ⌋`,
+      result:  `${h} hour${h!==1?'s':''}`,
+    },
+    {
+      formula: `MINUTES = ⌊ (${fmtInt(s)} mod 3600) ÷ 60 ⌋`,
+      result:  `${m} minute${m!==1?'s':''}`,
+    },
+    {
+      formula: `SECONDS = ${fmtInt(s)} mod 60`,
+      result:  `${sec} second${sec!==1?'s':''}`,
+    },
+  ];
+  document.getElementById('mathSteps').innerHTML = steps.map(st=>`
+    <div class="math-step">
+      <span class="math-formula">${st.formula}</span>
+      <span class="math-result">= ${st.result}</span>
+    </div>`).join('');
+}
+
+/* ── Real-time on input ── */
+document.getElementById('secondsInput').addEventListener('input', ()=>{
+  const v = document.getElementById('secondsInput').value;
+  if (v !== '') convertSeconds();
+});
+
+/* ── Keyboard: Enter to convert ── */
+document.getElementById('secondsInput').addEventListener('keydown', e=>{
+  if (e.key === 'Enter') convertSeconds();
+});
+
+/* ── Feedback form ── */
+const form = document.getElementById('feedbackForm');
+form.addEventListener('submit', async e=>{
+  e.preventDefault();
+  const btn = form.querySelector('.submit-btn');
+  btn.textContent = 'Transmitting…';
+  btn.disabled = true;
+  try {
+    const res = await fetch(form.action, {
+      method:'POST', body:new FormData(form),
+      headers:{'Accept':'application/json'}
+    });
+    if (res.ok) { alert('Feedback transmitted. Thank you!'); form.reset(); }
+    else        { alert('Transmission failed. Please try again.'); }
+  } catch { alert('Transmission error. Check your connection.'); }
+  finally { btn.textContent = 'Transmit Feedback'; btn.disabled = false; }
+});
 </script>
 </body>
 </html>
